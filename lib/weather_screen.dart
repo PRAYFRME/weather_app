@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:weather_app/additonal_info_item.dart';
+import 'package:weather_app/hourly_forecast_item.dart';
 
 class WeatherScreen extends StatelessWidget {
   const WeatherScreen({super.key});
@@ -26,6 +28,7 @@ class WeatherScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
               width: double.infinity,
@@ -72,14 +75,42 @@ class WeatherScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Placeholder(
-              fallbackHeight: 150,
+            const Text(
+              'Weather Forecast',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 20),
-            const Placeholder(
-              fallbackHeight: 150,
+            const SizedBox(height: 8),
+            const SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  HourlyForecastItem(),
+                  HourlyForecastItem(),
+                  HourlyForecastItem(),
+                  HourlyForecastItem(),
+                  HourlyForecastItem(),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
+            const Text(
+              'Additional Information',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                AdditionalInfoItem(),
+                AdditionalInfoItem(),
+                AdditionalInfoItem(),
+              ],
+            ),
           ],
         ),
       ),
