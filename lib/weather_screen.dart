@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:weather_app/additonal_info_item.dart';
+import 'package:weather_app/additional_info_item.dart';
 import 'package:weather_app/hourly_forecast_item.dart';
 import 'package:http/http.dart' as http;
-import 'package:weather_app/secret.dart';
+import 'package:weather_app/secrets.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -16,22 +16,23 @@ class WeatherScreen extends StatefulWidget {
 
 class _WeatherScreenState extends State<WeatherScreen> {
   late Future<Map<String, dynamic>> weather;
+
   Future<Map<String, dynamic>> getCurrentWeather() async {
     try {
       String cityName = 'Dhaka';
       final res = await http.get(
         Uri.parse(
-            'https://api.openweathermap.org/data/2.5/forecast?q=$cityName,&APPID=$openWeatherAPIKey'),
+          'https://api.openweathermap.org/data/2.5/forecast?q=$cityName&APPID=$openWeatherAPIKey',
+        ),
       );
 
       final data = jsonDecode(res.body);
 
-      if (data['cod'] != 200) {
-        throw 'An unexpected error occur';
+      if (data['cod'] != '200') {
+        throw 'An unexpected error occurred';
       }
 
       return data;
-      //data['list'][0]['main']['temp'];
     } catch (e) {
       throw e.toString();
     }
@@ -69,11 +70,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
         future: weather,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator.adaptive());
+            return const Center(
+              child: CircularProgressIndicator.adaptive(),
+            );
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
           }
 
           final data = snapshot.data!;
@@ -81,7 +86,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           final currentWeatherData = data['list'][0];
 
           final currentTemp = currentWeatherData['main']['temp'];
-          final currentSky = currentWeatherData['weather']['0']['min'];
+          final currentSky = currentWeatherData['weather'][0]['main'];
           final currentPressure = currentWeatherData['main']['pressure'];
           final currentWindSpeed = currentWeatherData['wind']['speed'];
           final currentHumidity = currentWeatherData['main']['humidity'];
@@ -91,6 +96,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // main card
                 SizedBox(
                   width: double.infinity,
                   child: Card(
@@ -118,7 +124,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                               const SizedBox(height: 16),
                               Icon(
-                                currentSky == 'Clouds' || currentSky == 'rain'
+                                currentSky == 'Clouds' || currentSky == 'Rain'
                                     ? Icons.cloud
                                     : Icons.sunny,
                                 size: 64,
@@ -154,20 +160,22 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     itemBuilder: (context, index) {
                       final hourlyForecast = data['list'][index + 1];
                       final hourlySky =
-                          data['list'][index + 1]['weather']['0']['main'];
+                          data['list'][index + 1]['weather'][0]['main'];
                       final hourlyTemp =
                           hourlyForecast['main']['temp'].toString();
-                      final time =
-                          DateTime.parse(hourlyForecast['dt_txt'].toString());
+                      final time = DateTime.parse(hourlyForecast['dt_txt']);
                       return HourlyForecastItem(
-                          time: DateFormat.j().format(time),
-                          temperature: hourlyTemp,
-                          icon: hourlySky == 'Clouds' || hourlySky == 'Rain'
-                              ? Icons.cloud
-                              : Icons.sunny);
+                        time: DateFormat.j().format(time),
+                        temperature: hourlyTemp,
+                        icon: hourlySky == 'Clouds' || hourlySky == 'Rain'
+                            ? Icons.cloud
+                            : Icons.sunny,
+                      );
                     },
                   ),
                 ),
+
+                const SizedBox(height: 20),
                 const Text(
                   'Additional Information',
                   style: TextStyle(
@@ -175,7 +183,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -186,7 +194,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     ),
                     AdditionalInfoItem(
                       icon: Icons.air,
-                      label: 'Windy Speed',
+                      label: 'Wind Speed',
                       value: currentWindSpeed.toString(),
                     ),
                     AdditionalInfoItem(
